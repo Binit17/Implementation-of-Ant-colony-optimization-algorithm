@@ -60,3 +60,21 @@ var Graph = (function(){
 
     return Graph;
 })();
+
+
+
+//to understand how object.key() works:
+/*
+// Define an object
+var obj = {
+    name: 'John',
+    age: 30,
+    profession: 'Engineer'
+};
+
+// Retrieve the keys of the object using Object.keys()
+var keys = Object.keys(obj);
+
+// Output the keys
+console.log(keys); // Output: ['name', 'age', 'profession']
+*/
