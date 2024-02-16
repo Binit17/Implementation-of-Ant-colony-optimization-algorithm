@@ -1,0 +1,136 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> 
+<!-- This above code is to import the jQuery to our Project-->
+<script type = "text/javascript"> //indicates that content within this tag is Javascript code. -->
+"use strict" //it indicates that the code should be executed in strict mode.
+
+var City = (function(){
+    function City(x,y) { //constructor function.
+        this._x = x;
+        this._y =y;
+    }
+    City.prototype.getX = function(){return this._x;};
+    City.prototype.getY = function(){return this._y;};
+    //now convert the coordinates to string in format x,y
+    City.prototype.toString = function(){ 
+        return this._x + ','+ this._y;
+    };
+    City.prototype.isEqual = function(city){
+        if(this._x == city._x && this._y == city._y){
+            return true;
+        }
+        return false;
+    }
+})
+var Edge = (function(){
+    function Edge(cityA, cityB) { //constructor function.
+        this._cityA = cityA;
+        this._cityB = cityB;
+        this._initPheromone = 1; //this represents the initial level of pheromone on the edge when it is first created.
+        this._pheromone = this._initPheromone; //represents the current level of pheromone on the edge.
+
+        // Calculate edge distance --> distance between two cities.
+        var deltaXSq = Math.pow((cityA.getX() - cityB.getX()), 2);
+        var deltaYSq = Math.pow((cityA.getY() - cityB.getY()), 2);
+        this._distance = Math.sqrt(deltaXSq + deltaYSq);
+    }
+    Edge.prototype.pointA = function() {
+        return { 'x': this._cityA.getX(), 'y': this._cityA.getY() };
+    }//this method returns coordinates of cityA
+    
+    Edge.prototype.pointB = function() {
+        return { 'x': this._cityB.getX(), 'y': this._cityB.getY() };
+    }//this method returns coordinates of cityB
+    
+    Edge.prototype.getPheromone = function() { return this._pheromone; };
+    //this method returns current phermone level of the edge.
+
+    Edge.prototype.getDistance = function() { return this._distance; };
+    //Returns the distance between cityA and cityB.
+
+    Edge.prototype.contains = function(city) {
+        if (this._cityA.getX() == city.getX()) {
+            return true;
+        }
+        if (this._cityB.getX() == city.getX()) {
+            return true;
+        }
+        return false;
+    };//checks if a given city is one of the cities connected by the edge.
+
+    Edge.prototype.setInitialPheromone = function(pheromone) {
+        this._initPheromone = pheromone;
+    };//sets the initial pheromone level of the edge.
+
+    Edge.prototype.setPheromone = function(pheromone) {
+        this._pheromone = pheromone;
+    };//sets the pheromone level of the edge
+    
+    Edge.prototype.resetPheromone = function() {
+        this._pheromone = this._initPheromone;
+    };//resets the pheromone level of the edge to its initial value.
+    return Edge;
+})();
+
+var Graph = (function(){
+    function Graph() { //constructor function.
+        this._cities = []; //an array that holds instances of City class.
+        this._edges = {}; //an object that will store edges between cities.
+    }
+    Graph.prototype.getEdges = function() { return this._edges; }; //returns the _edges object.
+    Graph.prototype.getEdgeCount = function() { return Object.keys(this._edges).length };//returns the number of edges in the graph.
+    // In this case, this._edges is an object containing the edges of the graph. Object.keys(this._edges) returns an array of strings representing the keys (property names) of the _edges object.
+    //.lenght gives the total number of elements in an array.
+
+    Graph.prototype.getCity = function(cityIndex) {
+        return this._cities[cityIndex];
+    }; //returns the city at the specified index in the '_cities' array.
+
+    Graph.prototype.getCities = function() {
+        return this._cities;
+    }; //return the array of cities
+    
+    Graph.prototype.size = function() {
+        return this._cities.length;
+    }; //return the number of cities in a graph.
+
+    Graph.prototype.addCity = function(x, y) {
+        this._cities.push(new City(x,y));
+    }; //adds a new city to the graph by creating a new instance of the 'city' class with coordinates (x,y) and push it to '_cities' array.
+
+    Graph.prototype._addEdge = function(cityA, cityB) {
+        this._edges[cityA.toString() + '-' + cityB.toString()] = new Edge(cityA, cityB);
+    };//Private method that creates a new Edge object between two cities (cityA and cityB) and adds it to the _edges object.
+    
+    Graph.prototype.getEdge = function(cityA, cityB) {
+        if (this._edges[cityA.toString() + '-' + cityB.toString()] != undefined) {
+            return this._edges[cityA.toString() + '-' + cityB.toString()];
+        }
+        if (this._edges[cityB.toString() + '-' + cityA.toString()] != undefined) {
+            return this._edges[cityB.toString() + '-' + cityA.toString()];
+        }
+    };//Returns the edge between two cities if it exists in _edges.
+
+    Graph.prototype.createEdges = function() {
+        this._edges = {};
+
+        for (var cityIndex = 0; cityIndex < this._cities.length; cityIndex++) {
+            for (var connectionIndex = cityIndex; connectionIndex < this._cities.length; connectionIndex++) {
+                this._addEdge(this._cities[cityIndex], this._cities[connectionIndex]);
+            }
+        }
+    };//kunai city add garesi, teslai aru sabai cities sanga connect garidinxa by calling addEdge function with the help of addEdge code.
+    
+    Graph.prototype.resetPheromone = function() {
+        for (var edgeIndex in this._edges) {
+            this._edges[edgeIndex].resetPheromone();
+        }
+    }//Resets the pheromone level of all edges in the _edges object.
+    
+    Graph.prototype.clear = function() {
+        this._cities = [];
+        this._edges = {};
+    }//Clears both the _cities array and the _edges object, effectively resetting the graph.
+
+    return Graph;
+})();
+</script>
